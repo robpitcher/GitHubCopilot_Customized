@@ -43,6 +43,12 @@ export const api = {
         headquarters: '/api/headquarters',
         deliveries: '/api/deliveries',
         orderDetails: '/api/order-details',
-        orderDetailDeliveries: '/api/order-detail-deliveries'
+        orderDetailDeliveries: '/api/order-detail-deliveries',
+        auth: {
+            register: '/api/auth/register',
+            login: '/api/auth/login',
+            me: '/api/auth/me'
+        },
+        wishlist: '/api/wishlist'
     }
 };

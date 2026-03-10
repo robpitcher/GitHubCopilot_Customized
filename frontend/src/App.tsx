@@ -9,6 +9,9 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import AdminProducts from './components/admin/AdminProducts';
 import { useTheme } from './context/ThemeContext';
+import { WishlistProvider } from './context/WishlistContext';
+import Wishlist from './components/Wishlist';
+import SharedWishlist from './components/SharedWishlist';
 
 // Wrapper component to apply theme classes
 function ThemedApp() {
@@ -25,6 +28,8 @@ function ThemedApp() {
             <Route path="/products" element={<Products />} />
             <Route path="/login" element={<Login />} />
             <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/wishlist/share/:token" element={<SharedWishlist />} />
           </Routes>
         </main>
         <Footer />
@@ -37,7 +42,9 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <ThemedApp />
+        <WishlistProvider>
+          <ThemedApp />
+        </WishlistProvider>
       </ThemeProvider>
     </AuthProvider>
   );

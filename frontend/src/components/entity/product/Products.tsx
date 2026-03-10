@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { api } from '../../../api/config';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAuth } from '../../../context/AuthContext';
+import { useWishlist } from '../../../context/WishlistContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   productId: number;
@@ -26,8 +29,12 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [wishlistDropdownId, setWishlistDropdownId] = useState<number | null>(null);
   const { data: products, isLoading, error } = useQuery('products', fetchProducts);
   const { darkMode } = useTheme();
+  const { isLoggedIn } = useAuth();
+  const { wishlists, isInActiveWishlist, addToWishlist, addToSpecificWishlist } = useWishlist();
+  const navigate = useNavigate();
 
   const filteredProducts = products?.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,6 +63,32 @@ export default function Products() {
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
     setShowModal(true);
+  };
+
+  const handleHeartClick = async (e: React.MouseEvent, productId: number) => {
+    e.stopPropagation();
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+    if (wishlists.length === 0) {
+      navigate('/wishlist');
+      return;
+    }
+    if (wishlists.length === 1) {
+      if (!isInActiveWishlist(productId)) {
+        await addToWishlist(productId);
+      }
+      return;
+    }
+    // Multiple wishlists — toggle dropdown
+    setWishlistDropdownId(prev => (prev === productId ? null : productId));
+  };
+
+  const handleAddToSpecificWishlist = async (e: React.MouseEvent, productId: number, wishlistId: number) => {
+    e.stopPropagation();
+    await addToSpecificWishlist(productId, wishlistId);
+    setWishlistDropdownId(null);
   };
 
   if (isLoading) {
@@ -140,6 +173,41 @@ export default function Products() {
                       ) : (
                         <span className="text-primary text-xl font-bold">${product.price.toFixed(2)}</span>
                       )}
+                      {/* Heart / wishlist button */}
+                      <div className="relative">
+                        <button
+                          onClick={(e) => handleHeartClick(e, product.productId)}
+                          className="p-1.5 rounded-full hover:bg-red-50 transition-colors"
+                          aria-label={`Add ${product.name} to wishlist`}
+                          title={!isLoggedIn ? 'Login to add to wishlist' : wishlists.length === 0 ? 'Create a wishlist first' : 'Add to wishlist'}
+                        >
+                          <svg
+                            className={`w-5 h-5 transition-colors ${isInActiveWishlist(product.productId) ? 'text-red-500 fill-current' : 'text-gray-400 hover:text-red-400'}`}
+                            fill={isInActiveWishlist(product.productId) ? 'currentColor' : 'none'}
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        </button>
+                        {/* Multi-wishlist dropdown */}
+                        {wishlistDropdownId === product.productId && (
+                          <div className={`absolute right-0 bottom-full mb-1 w-44 rounded-md shadow-lg z-20 ${darkMode ? 'bg-gray-700' : 'bg-white'} ring-1 ring-black ring-opacity-5`}>
+                            <div className="py-1">
+                              <p className={`px-3 py-1 text-xs font-semibold ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Add to wishlist:</p>
+                              {wishlists.map(wl => (
+                                <button
+                                  key={wl.wishlistId}
+                                  onClick={(e) => handleAddToSpecificWishlist(e, product.productId, wl.wishlistId)}
+                                  className={`w-full text-left px-3 py-1.5 text-sm ${darkMode ? 'text-light hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100'} transition-colors`}
+                                >
+                                  {wl.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between">

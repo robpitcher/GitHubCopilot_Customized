@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useState } from 'react';
 
 export default function Navigation() {
   const { isLoggedIn, isAdmin, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
+  const { activeWishlistItems } = useWishlist();
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
 
   return (
@@ -68,6 +70,29 @@ export default function Navigation() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            {/* Wishlist heart icon (visible when logged in) */}
+            {isLoggedIn && (
+              <Link
+                to="/wishlist"
+                className="relative p-2 rounded-full transition-colors"
+                aria-label="My wishlists"
+                title="My wishlists"
+              >
+                <svg
+                  className={`h-5 w-5 ${darkMode ? 'text-light' : 'text-gray-700'} hover:text-primary transition-colors`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {activeWishlistItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {activeWishlistItems.length > 9 ? '9+' : activeWishlistItems.length}
+                  </span>
+                )}
+              </Link>
+            )}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full focus:outline-none transition-colors"

@@ -10,6 +10,8 @@ import orderRoutes from './routes/order';
 import branchRoutes from './routes/branch';
 import headquartersRoutes from './routes/headquarters';
 import supplierRoutes from './routes/supplier';
+import authRoutes from './routes/auth';
+import wishlistRoutes from './routes/wishlist';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -41,6 +43,15 @@ const swaggerOptions = {
       title: 'Express API with Swagger',
       version: '1.0.0',
       description: 'REST API documentation using Swagger/OpenAPI',
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
     },
     servers: [
       {
@@ -74,6 +85,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/branches', branchRoutes);
 app.use('/api/headquarters', headquartersRoutes);
 app.use('/api/suppliers', supplierRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello, world!');

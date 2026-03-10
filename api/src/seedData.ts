@@ -6,6 +6,8 @@ import { Order } from './models/order';
 import { OrderDetail } from './models/orderDetail';
 import { Delivery } from './models/delivery';
 import { OrderDetailDelivery } from './models/orderDetailDelivery';
+import { User } from './models/user';
+import { WishlistItem } from './models/wishlist';
 
 // Suppliers
 export const suppliers: Supplier[] = [
@@ -290,5 +292,45 @@ export const orderDetailDeliveries: OrderDetailDelivery[] = [
         deliveryId: 2,
         quantity: 20,
         notes: "Delivery"
+    }
+];
+
+// Users (passwords are bcrypt hashes of "password123")
+export const users: User[] = [
+    {
+        userId: 1,
+        email: "octocat@github.com",
+        name: "Octocat",
+        passwordHash: "$2b$10$yUxMQZjMXaBJFXcdILMFbuBTiKdnS9lH9Uq6eE0KnLU.ykqg0Q9A6",
+        createdAt: new Date("2024-01-01").toISOString()
+    },
+    {
+        userId: 2,
+        email: "whiskers@octocat.com",
+        name: "Whiskers McPaw",
+        passwordHash: "$2b$10$VmOcuFbdqJPj/Rr02/7ht.ajhtAcf3srSBygGuptOfBCtflFbWVda",
+        createdAt: new Date("2024-02-15").toISOString()
+    }
+];
+
+// Wishlist items
+export const wishlistItems: WishlistItem[] = [
+    {
+        wishlistId: 1,
+        userId: 1,
+        productId: 1,
+        addedAt: new Date("2024-03-01").toISOString()
+    },
+    {
+        wishlistId: 2,
+        userId: 1,
+        productId: 5,
+        addedAt: new Date("2024-03-05").toISOString()
+    },
+    {
+        wishlistId: 3,
+        userId: 2,
+        productId: 3,
+        addedAt: new Date("2024-03-10").toISOString()
     }
 ];

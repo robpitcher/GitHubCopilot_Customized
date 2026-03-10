@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { api } from '../../../api/config';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAuth } from '../../../context/AuthContext';
+import { useWishlist } from '../../../context/WishlistContext';
+import { Link } from 'react-router-dom';
 
 interface Product {
   productId: number;
@@ -28,6 +31,8 @@ export default function Products() {
   const [showModal, setShowModal] = useState(false);
   const { data: products, isLoading, error } = useQuery('products', fetchProducts);
   const { darkMode } = useTheme();
+  const { isLoggedIn } = useAuth();
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
   const filteredProducts = products?.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,6 +130,47 @@ export default function Products() {
                       {Math.round(product.discount * 100)}% OFF
                     </div>
                   )}
+                  {/* Wishlist toggle */}
+                  <div className="absolute top-2 right-2" onClick={e => e.stopPropagation()}>
+                    {isLoggedIn ? (
+                      <button
+                        onClick={() =>
+                          isInWishlist(product.productId)
+                            ? removeFromWishlist(product.productId)
+                            : addToWishlist(product.productId)
+                        }
+                        className="p-1 rounded-full bg-white/80 hover:bg-white transition-colors shadow"
+                        aria-label={isInWishlist(product.productId) ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+                        title={isInWishlist(product.productId) ? 'Remove from wishlist' : 'Add to wishlist'}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className={`h-5 w-5 transition-colors ${isInWishlist(product.productId) ? 'text-red-500 fill-red-500' : 'text-gray-400 fill-none'}`}
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <Link
+                        to="/login"
+                        className="p-1 rounded-full bg-white/80 hover:bg-white transition-colors shadow block"
+                        title="Login to add to wishlist"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-gray-400 fill-none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </Link>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="p-4 flex flex-col flex-grow">

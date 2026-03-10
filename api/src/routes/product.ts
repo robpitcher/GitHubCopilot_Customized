@@ -99,6 +99,32 @@
  *         description: Product not found
  */
 
+/**
+ * @swagger
+ * /api/products/search:
+ *   get:
+ *     summary: Search products by name or description
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Search term matched against product name and description (case-insensitive)
+ *     responses:
+ *       200:
+ *         description: List of matching products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Missing name query parameter
+ */
+
 import express from 'express';
 import { Product } from '../models/product';
 import { products as seedProducts } from '../seedData';
@@ -106,6 +132,11 @@ import { products as seedProducts } from '../seedData';
 const router = express.Router();
 
 let products: Product[] = [...seedProducts];
+
+// Add reset function for testing
+export const resetProducts = () => {
+  products = [...seedProducts];
+};
 
 // Create a new product
 router.post('/', (req, res) => {
@@ -117,6 +148,20 @@ router.post('/', (req, res) => {
 // Get all products
 router.get('/', (req, res) => {
   res.json(products);
+});
+
+// Search products by name or description (case-insensitive substring match)
+router.get('/search', (req, res) => {
+  const { name } = req.query;
+  if (!name || typeof name !== 'string') {
+    return res.status(400).json({ error: 'Query parameter "name" is required' });
+  }
+  const term = name.toLowerCase();
+  const results = products.filter(p =>
+    p.name.toLowerCase().includes(term) ||
+    (p.description && p.description.toLowerCase().includes(term))
+  );
+  res.json(results);
 });
 
 // Get a product by ID

@@ -19,7 +19,7 @@ let getNotifications: () => Notification[];
 let nextNotificationId: () => number;
 
 const PRICE_DROP_THRESHOLD = 5; // percent
-const CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour (simulated)
+const CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour; replace with node-cron in production
 let monitorInterval: ReturnType<typeof setTimeout> | null = null;
 
 export function initPriceMonitor(deps: {

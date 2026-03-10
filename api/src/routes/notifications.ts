@@ -78,13 +78,33 @@
  */
 
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { notifications, nextNotificationId } from '../store';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import { Notification } from '../models/notification';
 
 const router = express.Router();
 
+// Rate limit the test endpoint to prevent abuse
+const testLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
+// General rate limiter for notification endpoints
+const notifLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
 router.use(requireAuth);
+router.use(notifLimiter);
 
 // GET /api/notifications
 router.get('/', (req: AuthenticatedRequest, res) => {
@@ -122,7 +142,7 @@ router.delete('/:id', (req: AuthenticatedRequest, res) => {
 });
 
 // POST /api/notifications/test (dev only)
-router.post('/test', (req: AuthenticatedRequest, res) => {
+router.post('/test', testLimiter, (req: AuthenticatedRequest, res) => {
     const userId = req.userId!;
     const { type = 'recommendation', productId = 1, message = 'Test notification' } =
         req.body as Partial<Notification>;

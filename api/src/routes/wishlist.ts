@@ -7,6 +7,7 @@
 
 import express from 'express';
 import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
 import { wishlistItems, wishlistShares, notifications, users, nextWishlistId, nextShareId, nextNotificationId } from '../store';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 import { WishlistItem } from '../models/wishlist';
@@ -17,8 +18,43 @@ import { products as allProducts } from './product';
 
 const router = express.Router();
 
+// Rate limit for share link creation (prevents abuse)
+const shareLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many share link requests, please try again later.' }
+});
+
+/**
+ * Sanitize user-provided notes to prevent XSS.
+ * Encodes HTML special characters rather than stripping tags,
+ * which is safer than attempting to strip all dangerous patterns.
+ */
+function sanitizeNotes(raw: unknown): string {
+    return String(raw)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .trim()
+        .slice(0, 500); // enforce max length
+}
+
+// General rate limiter for wishlist API endpoints
+const wishlistLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
 // All wishlist routes require authentication
 router.use(requireAuth);
+router.use(wishlistLimiter);
 
 // GET /api/wishlist - Get user's wishlist with full product details
 router.get('/', (req: AuthenticatedRequest, res) => {
@@ -68,7 +104,7 @@ router.post('/', (req: AuthenticatedRequest, res) => {
         productId,
         addedAt: new Date().toISOString(),
         priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'medium',
-        notes: notes ? String(notes).replace(/<[^>]*>/g, '') : undefined, // Sanitize notes
+        notes: notes ? sanitizeNotes(notes) : undefined,
         priceWhenAdded: currentPrice,
         notifyOnPriceDrop,
         notifyOnStock
@@ -97,7 +133,7 @@ router.put('/:productId', (req: AuthenticatedRequest, res) => {
         wishlistItems[index].priority = priority;
     }
     if (notes !== undefined) {
-        wishlistItems[index].notes = String(notes).replace(/<[^>]*>/g, ''); // Sanitize notes
+        wishlistItems[index].notes = sanitizeNotes(notes);
     }
     if (notifyOnPriceDrop !== undefined) {
         wishlistItems[index].notifyOnPriceDrop = notifyOnPriceDrop;
@@ -157,7 +193,7 @@ router.post('/bulk', (req: AuthenticatedRequest, res) => {
             productId,
             addedAt: new Date().toISOString(),
             priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'medium',
-            notes: notes ? String(notes).replace(/<[^>]*>/g, '') : undefined,
+            notes: notes ? sanitizeNotes(notes) : undefined,
             priceWhenAdded: currentPrice,
             notifyOnPriceDrop,
             notifyOnStock
@@ -178,7 +214,7 @@ router.get('/recommendations', (req: AuthenticatedRequest, res) => {
 });
 
 // POST /api/wishlist/share - Create shareable link
-router.post('/share', (req: AuthenticatedRequest, res) => {
+router.post('/share', shareLimiter, (req: AuthenticatedRequest, res) => {
     const userId = req.userId!;
     const { isPublic = true, expiresAt } = req.body as { isPublic?: boolean; expiresAt?: string };
 

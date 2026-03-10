@@ -81,8 +81,8 @@ app.use('/api/branches', branchRoutes);
 app.use('/api/headquarters', headquartersRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/wishlist/shared', createPublicShareRouter()); // public, no auth - must be before main wishlist router
 app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/wishlist/shared', createPublicShareRouter());
 app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {

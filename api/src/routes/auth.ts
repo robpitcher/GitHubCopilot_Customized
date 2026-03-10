@@ -96,6 +96,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import rateLimit from 'express-rate-limit';
 import { users, nextUserId } from '../store';
 import { requireAuth, AuthenticatedRequest, JWT_SECRET, JWT_EXPIRY } from '../middleware/auth';
 import { User, NotificationPreferences } from '../models/user';
@@ -104,8 +105,20 @@ const router = express.Router();
 
 const BCRYPT_ROUNDS = 10;
 
+// Rate limit auth endpoints: 10 requests per 15 minutes per IP
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
+// Apply rate limiting to all auth routes
+router.use(authLimiter);
+
 // POST /api/auth/register
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
     const { email, name, password } = req.body as { email?: string; name?: string; password?: string };
 
     if (!email || !name || !password) {
@@ -136,7 +149,7 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     const { email, password } = req.body as { email?: string; password?: string };
 
     if (!email || !password) {

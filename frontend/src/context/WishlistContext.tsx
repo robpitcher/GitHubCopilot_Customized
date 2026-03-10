@@ -71,7 +71,7 @@ interface WishlistContextType {
 
 const WishlistContext = createContext<WishlistContextType | null>(null);
 
-const POLL_INTERVAL = 30_000; // 30 seconds
+const POLL_INTERVAL = 30_000; // 30 seconds - periodic polling interval for new notifications
 
 function getAuthHeader(): { Authorization: string } | Record<string, never> {
     const token = localStorage.getItem('authToken');
@@ -198,7 +198,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         }
     }, [fetchWishlist, fetchNotifications]);
 
-    // Debounced notification polling every 30 seconds
+    // Periodic notification polling every 30 seconds
     useEffect(() => {
         const interval = setInterval(() => {
             const token = localStorage.getItem('authToken');

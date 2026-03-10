@@ -93,8 +93,8 @@ export default function Wishlist() {
 
     const handleAddToCart = (productId: number) => {
         toast.success(`Added to cart`);
-        // TODO: Integrate with cart context
-        console.log('Add to cart:', productId);
+        // TODO: Integrate with cart context (#issue)
+        void productId;
     };
 
     const handleExportCSV = () => {

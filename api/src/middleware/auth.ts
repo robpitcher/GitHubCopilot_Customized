@@ -1,7 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-export const JWT_SECRET = process.env.JWT_SECRET || 'octocat-supply-dev-secret-do-not-use-in-prod';
+export const JWT_SECRET = (() => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error('JWT_SECRET environment variable must be set in production');
+        }
+        console.warn('[Auth] WARNING: JWT_SECRET not set. Using insecure default for development only.');
+        return 'octocat-supply-dev-secret-do-not-use-in-prod';
+    }
+    return secret;
+})();
 export const JWT_EXPIRY = '24h';
 
 export interface AuthenticatedRequest extends Request {

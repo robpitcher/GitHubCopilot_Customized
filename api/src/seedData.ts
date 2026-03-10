@@ -298,14 +298,13 @@ export const orderDetailDeliveries: OrderDetailDelivery[] = [
     }
 ];
 
-// Users (passwords are bcrypt hashes of 'password123')
-// Hash: $2b$10$K7L/0w3n8vHqrJQ1bHvFBOpx6SAlKL.TSIp/oiUk6xVT3qS5ZnH2y = 'password123'
+// Users (both use password 'password123' for demo purposes)
 export const seedUsers: User[] = [
     {
         userId: 1,
         email: 'alice@example.com',
         name: 'Alice Pawsworth',
-        passwordHash: '$2b$10$K7L/0w3n8vHqrJQ1bHvFBOpx6SAlKL.TSIp/oiUk6xVT3qS5ZnH2y',
+        passwordHash: '$2b$10$xNXn7e9dSKMuP8Dvsh1KZOzK.ECpKio/tL4nqm2QKj4ybFxiNSLYO',
         notificationPreferences: { email: true, push: true, priceAlerts: true, stockAlerts: true },
         createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
     },
@@ -313,7 +312,7 @@ export const seedUsers: User[] = [
         userId: 2,
         email: 'bob@example.com',
         name: 'Bob Whiskertons',
-        passwordHash: '$2b$10$K7L/0w3n8vHqrJQ1bHvFBOpx6SAlKL.TSIp/oiUk6xVT3qS5ZnH2y',
+        passwordHash: '$2b$10$xNXn7e9dSKMuP8Dvsh1KZOzK.ECpKio/tL4nqm2QKj4ybFxiNSLYO',
         notificationPreferences: { email: false, push: true, priceAlerts: true, stockAlerts: false },
         createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
     }

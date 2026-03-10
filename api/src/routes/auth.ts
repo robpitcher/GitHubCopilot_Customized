@@ -96,6 +96,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import rateLimit from 'express-rate-limit';
 import { User } from '../models/user';
 import { users as seedUsers } from '../seedData';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
@@ -104,10 +105,18 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'octocat-secret-key';
 const SALT_ROUNDS = 10;
 
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later' }
+});
+
 let users: User[] = [...seedUsers];
 
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
     const { email, name, password } = req.body;
 
     if (!email || !name || !password) {
@@ -144,7 +153,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -172,7 +181,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Get current user
-router.get('/me', authenticateToken, (req: AuthRequest, res) => {
+router.get('/me', authLimiter, authenticateToken, (req: AuthRequest, res) => {
     const user = users.find(u => u.userId === req.userId);
     if (!user) {
         res.status(404).json({ error: 'User not found' });

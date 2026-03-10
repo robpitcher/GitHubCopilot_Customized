@@ -103,22 +103,31 @@
  */
 
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { WishlistItem } from '../models/wishlist';
 import { wishlistItems as seedWishlistItems } from '../seedData';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
+const wishlistLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later' }
+});
+
 let wishlistItems: WishlistItem[] = [...seedWishlistItems];
 
 // Get user's wishlist
-router.get('/', authenticateToken, (req: AuthRequest, res) => {
+router.get('/', wishlistLimiter, authenticateToken, (req: AuthRequest, res) => {
     const userItems = wishlistItems.filter(w => w.userId === req.userId);
     res.json(userItems);
 });
 
 // Add product to wishlist
-router.post('/', authenticateToken, (req: AuthRequest, res) => {
+router.post('/', wishlistLimiter, authenticateToken, (req: AuthRequest, res) => {
     const { productId } = req.body;
 
     if (!productId) {
@@ -143,7 +152,7 @@ router.post('/', authenticateToken, (req: AuthRequest, res) => {
 });
 
 // Bulk sync from localStorage
-router.post('/bulk', authenticateToken, (req: AuthRequest, res) => {
+router.post('/bulk', wishlistLimiter, authenticateToken, (req: AuthRequest, res) => {
     const { productIds } = req.body;
 
     if (!Array.isArray(productIds)) {
@@ -169,7 +178,7 @@ router.post('/bulk', authenticateToken, (req: AuthRequest, res) => {
 });
 
 // Remove product from wishlist
-router.delete('/:productId', authenticateToken, (req: AuthRequest, res) => {
+router.delete('/:productId', wishlistLimiter, authenticateToken, (req: AuthRequest, res) => {
     const productId = parseInt(req.params.productId);
     const index = wishlistItems.findIndex(w => w.userId === req.userId && w.productId === productId);
 

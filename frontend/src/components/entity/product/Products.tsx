@@ -38,8 +38,9 @@ export default function Products() {
   };
 
   const handleWishlistToggle = async (product: Product) => {
+    const wasInWishlist = isInWishlist(product.productId);
     await toggleWishlist(product.productId);
-    showToast(isInWishlist(product.productId)
+    showToast(wasInWishlist
       ? `Removed "${product.name}" from wishlist`
       : `Added "${product.name}" to wishlist`
     );

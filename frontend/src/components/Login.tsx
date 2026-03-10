@@ -4,6 +4,18 @@ import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useTheme } from '../context/ThemeContext';
 
+const WISHLIST_STORAGE_KEY = 'octocat-wishlist';
+
+function getLocalWishlistCount(): number {
+  try {
+    const raw = localStorage.getItem(WISHLIST_STORAGE_KEY);
+    const ids: number[] = raw ? JSON.parse(raw) : [];
+    return ids.length;
+  } catch {
+    return 0;
+  }
+}
+
 export default function Login() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -14,7 +26,7 @@ export default function Login() {
   const [syncSuccess, setSyncSuccess] = useState(false);
   const navigate = useNavigate();
   const { login, register } = useAuth();
-  const { syncWithApi, wishlistCount } = useWishlist();
+  const { syncWithApi } = useWishlist();
   const { darkMode } = useTheme();
   const [searchParams] = useSearchParams();
 
@@ -31,7 +43,7 @@ export default function Login() {
     setSyncing(false);
     setSyncSuccess(false);
     try {
-      const hasLocalItems = wishlistCount > 0;
+      const hasLocalItems = getLocalWishlistCount() > 0;
       if (hasLocalItems) setSyncing(true);
       if (mode === 'login') {
         await login(email, password, syncWithApi);

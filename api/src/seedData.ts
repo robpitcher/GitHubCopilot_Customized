@@ -6,6 +6,11 @@ import { Order } from './models/order';
 import { OrderDetail } from './models/orderDetail';
 import { Delivery } from './models/delivery';
 import { OrderDetailDelivery } from './models/orderDetailDelivery';
+import { User } from './models/user';
+import { WishlistItem } from './models/wishlist';
+import { WishlistShare } from './models/wishlistShare';
+import { PriceHistory } from './models/priceHistory';
+import { Notification } from './models/notification';
 
 // Suppliers
 export const suppliers: Supplier[] = [
@@ -290,5 +295,137 @@ export const orderDetailDeliveries: OrderDetailDelivery[] = [
         deliveryId: 2,
         quantity: 20,
         notes: "Delivery"
+    }
+];
+
+// Users (passwords are bcrypt hashes of 'password123')
+// Hash: $2b$10$K7L/0w3n8vHqrJQ1bHvFBOpx6SAlKL.TSIp/oiUk6xVT3qS5ZnH2y = 'password123'
+export const seedUsers: User[] = [
+    {
+        userId: 1,
+        email: 'alice@example.com',
+        name: 'Alice Pawsworth',
+        passwordHash: '$2b$10$K7L/0w3n8vHqrJQ1bHvFBOpx6SAlKL.TSIp/oiUk6xVT3qS5ZnH2y',
+        notificationPreferences: { email: true, push: true, priceAlerts: true, stockAlerts: true },
+        createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+        userId: 2,
+        email: 'bob@example.com',
+        name: 'Bob Whiskertons',
+        passwordHash: '$2b$10$K7L/0w3n8vHqrJQ1bHvFBOpx6SAlKL.TSIp/oiUk6xVT3qS5ZnH2y',
+        notificationPreferences: { email: false, push: true, priceAlerts: true, stockAlerts: false },
+        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+    }
+];
+
+// Wishlist items
+export const seedWishlistItems: WishlistItem[] = [
+    {
+        wishlistId: 1,
+        userId: 1,
+        productId: 1, // SmartFeeder One - has 25% discount, so price dropped
+        addedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        priority: 'high',
+        notes: 'Perfect for Mr. Whiskers',
+        priceWhenAdded: 129.99, // original price before discount
+        notifyOnPriceDrop: true,
+        notifyOnStock: false
+    },
+    {
+        wishlistId: 2,
+        userId: 1,
+        productId: 5, // SleepNest ThermoPod
+        addedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        priority: 'medium',
+        notes: undefined,
+        priceWhenAdded: 149.99,
+        notifyOnPriceDrop: false,
+        notifyOnStock: true
+    },
+    {
+        wishlistId: 3,
+        userId: 1,
+        productId: 9, // ChirpCam Window Mount
+        addedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        priority: 'low',
+        notes: 'For the bird watching setup',
+        priceWhenAdded: 99.99,
+        notifyOnPriceDrop: true,
+        notifyOnStock: false
+    },
+    {
+        wishlistId: 4,
+        userId: 2,
+        productId: 4, // PawTrack Smart Collar
+        addedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        priority: 'high',
+        notes: undefined,
+        priceWhenAdded: 79.99,
+        notifyOnPriceDrop: true,
+        notifyOnStock: true
+    }
+];
+
+// Wishlist shares
+export const seedWishlistShares: WishlistShare[] = [
+    {
+        shareId: 1,
+        wishlistId: 1,
+        userId: 1,
+        shareToken: 'abc123def456abc123def456abc12345',
+        isPublic: true,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        viewCount: 12,
+        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    }
+];
+
+// Price history - tracks prices over the past 30 days
+const now = Date.now();
+export const seedPriceHistory: PriceHistory[] = [
+    // SmartFeeder One (productId: 1) - price drop scenario
+    { priceHistoryId: 1, productId: 1, price: 129.99, recordedAt: new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString() },
+    { priceHistoryId: 2, productId: 1, price: 124.99, recordedAt: new Date(now - 20 * 24 * 60 * 60 * 1000).toISOString() },
+    { priceHistoryId: 3, productId: 1, price: 119.99, recordedAt: new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString() },
+    { priceHistoryId: 4, productId: 1, price: 97.49, recordedAt: new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString() },
+    // PawTrack Smart Collar (productId: 4)
+    { priceHistoryId: 5, productId: 4, price: 89.99, recordedAt: new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString() },
+    { priceHistoryId: 6, productId: 4, price: 84.99, recordedAt: new Date(now - 15 * 24 * 60 * 60 * 1000).toISOString() },
+    { priceHistoryId: 7, productId: 4, price: 79.99, recordedAt: new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString() },
+    // SleepNest ThermoPod (productId: 5)
+    { priceHistoryId: 8, productId: 5, price: 159.99, recordedAt: new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString() },
+    { priceHistoryId: 9, productId: 5, price: 154.99, recordedAt: new Date(now - 15 * 24 * 60 * 60 * 1000).toISOString() },
+    { priceHistoryId: 10, productId: 5, price: 149.99, recordedAt: new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString() }
+];
+
+// Notifications
+export const seedNotifications: Notification[] = [
+    {
+        notificationId: 1,
+        userId: 1,
+        type: 'price_drop',
+        productId: 1,
+        message: 'Price dropped 25% on SmartFeeder One! Now $97.49 (was $129.99)',
+        read: false,
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    },
+    {
+        notificationId: 2,
+        userId: 1,
+        type: 'recommendation',
+        productId: 7,
+        message: 'Based on your wishlist, you might like Smart Fountain Flow+',
+        read: true,
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+        notificationId: 3,
+        userId: 2,
+        type: 'stock_alert',
+        productId: 4,
+        message: 'PawTrack Smart Collar is back in stock!',
+        read: false,
+        createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
     }
 ];

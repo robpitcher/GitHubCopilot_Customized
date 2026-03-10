@@ -105,7 +105,7 @@ import { products as seedProducts } from '../seedData';
 
 const router = express.Router();
 
-let products: Product[] = [...seedProducts];
+export let products: Product[] = [...seedProducts];
 
 // Create a new product
 router.post('/', (req, res) => {
@@ -149,6 +149,22 @@ router.delete('/:id', (req, res) => {
   } else {
     res.status(404).send('Product not found');
   }
+});
+
+// GET /api/products/:id/price-history
+router.get('/:id/price-history', (req, res) => {
+  const productId = parseInt(req.params.id);
+  const product = products.find(p => p.productId === productId);
+  if (!product) {
+    res.status(404).send('Product not found');
+    return;
+  }
+  // Import lazily to avoid circular dependency
+  const { priceHistory } = require('../store');
+  const history = (priceHistory as import('../models/priceHistory').PriceHistory[])
+    .filter(h => h.productId === productId)
+    .sort((a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime());
+  res.json(history);
 });
 
 export default router;

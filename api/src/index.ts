@@ -10,6 +10,12 @@ import orderRoutes from './routes/order';
 import branchRoutes from './routes/branch';
 import headquartersRoutes from './routes/headquarters';
 import supplierRoutes from './routes/supplier';
+import authRoutes from './routes/auth';
+import wishlistRoutes, { createPublicShareRouter } from './routes/wishlist';
+import notificationRoutes from './routes/notifications';
+import { wishlistItems, users, notifications, nextNotificationId } from './store';
+import { products } from './routes/product';
+import { initPriceMonitor, startPriceMonitor } from './services/priceMonitor';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -74,10 +80,25 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/branches', branchRoutes);
 app.use('/api/headquarters', headquartersRoutes);
 app.use('/api/suppliers', supplierRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/wishlist/shared', createPublicShareRouter());
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello, world!');
 });
+
+// Initialize and start the price monitoring background service
+initPriceMonitor({
+    getWishlistItems: () => wishlistItems,
+    getProducts: () => products,
+    getUsers: () => users,
+    addNotification: (n) => notifications.push(n),
+    getNotifications: () => notifications,
+    nextNotificationId
+});
+startPriceMonitor();
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

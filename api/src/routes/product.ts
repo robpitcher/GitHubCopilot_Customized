@@ -37,6 +37,29 @@
  *             schema:
  *               $ref: '#/components/schemas/Product'
  * 
+ * /api/products/search:
+ *   get:
+ *     summary: Search products by name with ranked results
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product name to search for. Exact matches appear before partial matches (case-insensitive).
+ *     responses:
+ *       200:
+ *         description: Ranked list of matching products (exact matches first)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Missing name query parameter
+ *
  * /api/products/{id}:
  *   get:
  *     summary: Get a product by ID
@@ -106,6 +129,31 @@ import { products as seedProducts } from '../seedData';
 const router = express.Router();
 
 let products: Product[] = [...seedProducts];
+
+// Add reset function for testing
+export const resetProducts = () => {
+  products = [...seedProducts];
+};
+
+// Search products by name; exact matches ranked before partial matches (case-insensitive)
+router.get('/search', (req, res) => {
+  const { name } = req.query;
+  if (!name || typeof name !== 'string') {
+    return res.status(400).json({ error: 'Query parameter "name" is required' });
+  }
+  const term = name.toLowerCase();
+  const exact: Product[] = [];
+  const partial: Product[] = [];
+  for (const p of products) {
+    const lowerName = p.name.toLowerCase();
+    if (lowerName === term) {
+      exact.push(p);
+    } else if (lowerName.includes(term)) {
+      partial.push(p);
+    }
+  }
+  res.json([...exact, ...partial]);
+});
 
 // Create a new product
 router.post('/', (req, res) => {

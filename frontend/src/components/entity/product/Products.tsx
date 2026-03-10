@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { api } from '../../../api/config';
 import { useTheme } from '../../../context/ThemeContext';
+import { useWishlist } from '../../../context/WishlistContext';
 
 interface Product {
   productId: number;
@@ -28,6 +29,7 @@ export default function Products() {
   const [showModal, setShowModal] = useState(false);
   const { data: products, isLoading, error } = useQuery('products', fetchProducts);
   const { darkMode } = useTheme();
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
   const filteredProducts = products?.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,6 +127,29 @@ export default function Products() {
                       {Math.round(product.discount * 100)}% OFF
                     </div>
                   )}
+                  {/* Wishlist heart toggle */}
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (isInWishlist(product.productId)) {
+                        removeFromWishlist(product.productId);
+                      } else {
+                        addToWishlist(product.productId);
+                      }
+                    }}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white shadow transition-colors"
+                    aria-label={isInWishlist(product.productId) ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+                  >
+                    {isInWishlist(product.productId) ? (
+                      <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    )}
+                  </button>
                 </div>
                 
                 <div className="p-4 flex flex-col flex-grow">

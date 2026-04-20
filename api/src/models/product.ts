@@ -6,8 +6,13 @@
  *       type: object
  *       required:
  *         - productId
+ *         - supplierId
  *         - name
+ *         - description
  *         - price
+ *         - sku
+ *         - unit
+ *         - imgName
  *       properties:
  *         productId:
  *           type: integer

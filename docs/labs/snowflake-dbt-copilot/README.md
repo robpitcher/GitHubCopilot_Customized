@@ -124,13 +124,16 @@ and region scoped to the Americas.
 
 ### 📋 Sample prompt — paste into Copilot Chat
 
-> Generate a dbt **mart** model `mart_sales_americas.sql` that reads from
-> `{{ ref('stg_sales') }}` and returns one row per (`order_date`, `region`, `sku`) for
-> the Americas region only. Include:
-> - `total_quantity` (sum of `quantity`)
-> - `total_revenue` (sum of `total_amount`)
-> - `order_count` (distinct `order_id` count)
-> Order results by `order_date` then `sku`. Add a header comment explaining the grain.
+```
+Generate a dbt mart model mart_sales_americas.sql that reads from
+{{ ref('stg_sales') }} and returns one row per (order_date, region, sku) for
+the Americas region only. Include:
+
+- total_quantity (sum of quantity)
+- total_revenue (sum of total_amount)
+- order_count (distinct order_id count)
+Order results by order_date then sku. Add a header comment explaining the grain.
+```
 
 ### ✅ Expected output: `models/marts/mart_sales_americas.sql`
 
@@ -169,13 +172,16 @@ common dbt tests.
 
 ### 📋 Sample prompt — paste into Copilot Chat
 
-> Create a dbt `schema.yml` at `models/staging/schema.yml` that documents and tests
-> both `stg_sales` and `mart_sales_americas`. Include:
-> - `not_null` on `order_id`, `order_date`, `sku`, `quantity`, `unit_price` in `stg_sales`
-> - `unique` on `order_id` in `stg_sales`
-> - `accepted_values` on `region` (`Americas`, `EMEA`, `APAC`)
-> - A `relationships` test on `mart_sales_americas.sku` → `stg_sales.sku`
-> - A short `description:` on every model and column
+```
+Create a dbt schema.yml at models/staging/schema.yml that documents and tests
+both stg_sales and mart_sales_americas. Include:
+
+- not_null on order_id, order_date, sku, quantity, unit_price in stg_sales
+- unique on order_id in stg_sales
+- accepted_values on region (Americas, EMEA, APAC)
+- A relationships test on mart_sales_americas.sku → stg_sales.sku
+- A short description: on every model and column
+```
 
 ### ✅ Expected output: `models/staging/schema.yml`
 
@@ -246,15 +252,18 @@ on any future CSV.
 
 #### 📋 Sample prompt
 
-> Open `docs/labs/snowflake-dbt-copilot/profile_table.py` and implement the
-> `profile_table` function so that, given a path to a CSV file, it prints:
-> - the total row count
-> - for each column: the column name, null percentage (empty string = null,
->   formatted to one decimal place), and distinct non-null value count
->
-> Use only the Python standard library (`csv`, `pathlib`, `collections`).
-> Then run it against `docs/labs/snowflake-dbt-copilot/seeds/raw_sales.csv` and
-> show me the output.
+```
+Open docs/labs/snowflake-dbt-copilot/profile_table.py and implement the
+profile_table function so that, given a path to a CSV file, it prints:
+
+- the total row count
+- for each column: the column name, null percentage (empty string = null,
+  formatted to one decimal place), and distinct non-null value count
+
+Use only the Python standard library (csv, pathlib, collections).
+Then run it against docs/labs/snowflake-dbt-copilot/seeds/raw_sales.csv and
+show me the output.
+```
 
 ### ✅ Expected output (abbreviated)
 
@@ -274,9 +283,11 @@ customer_id     nulls=5.0%   distinct=19
 
 Ask Copilot:
 
-> Save the prompt I just used as a reusable prompt file at
-> `.github/prompts/profile-table.prompt.md` so I can invoke it with `/profile-table`
-> on any CSV in this repo. Parameterize the CSV path as `${input:csvPath}`.
+```
+Save the prompt I just used as a reusable prompt file at
+.github/prompts/profile-table.prompt.md so I can invoke it with /profile-table
+on any CSV in this repo. Parameterize the CSV path as ${input:csvPath}.
+```
 
 #### ✅ Expected output: `.github/prompts/profile-table.prompt.md`
 

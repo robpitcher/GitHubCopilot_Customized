@@ -50,7 +50,7 @@ describe('Product API', () => {
 
   it('should reject duplicate product IDs', async () => {
     const duplicateIdProduct = {
-      productId: 1,
+      productId: 1001,
       supplierId: 1,
       name: 'Duplicate Product',
       description: 'Duplicate ID product',
@@ -60,6 +60,7 @@ describe('Product API', () => {
       imgName: 'duplicate-product.png'
     };
 
+    await request(app).post('/products').send(duplicateIdProduct);
     const response = await request(app).post('/products').send(duplicateIdProduct);
 
     expect(response.status).toBe(400);

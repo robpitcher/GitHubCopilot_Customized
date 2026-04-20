@@ -47,4 +47,22 @@ describe('Product API', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'Invalid product payload' });
   });
+
+  it('should reject duplicate product IDs', async () => {
+    const duplicateIdProduct = {
+      productId: 1,
+      supplierId: 1,
+      name: 'Duplicate Product',
+      description: 'Duplicate ID product',
+      price: 10.5,
+      sku: 'SKU-NEW-003',
+      unit: 'piece',
+      imgName: 'duplicate-product.png'
+    };
+
+    const response = await request(app).post('/products').send(duplicateIdProduct);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Product ID already exists' });
+  });
 });

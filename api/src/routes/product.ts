@@ -120,7 +120,10 @@ const isFiniteNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
 
 const isPositiveInteger = (value: unknown): value is number =>
-  Number.isInteger(value) && typeof value === 'number' && value > 0;
+  typeof value === 'number' && Number.isInteger(value) && value > 0;
+
+const isNonNegativeNumber = (value: unknown): value is number =>
+  isFiniteNumber(value) && value >= 0;
 
 const isValidProductPayload = (payload: unknown): payload is Product => {
   if (!payload || typeof payload !== 'object') {
@@ -134,13 +137,12 @@ const isValidProductPayload = (payload: unknown): payload is Product => {
     isPositiveInteger(product.supplierId) &&
     isNonEmptyString(product.name) &&
     isNonEmptyString(product.description) &&
-    isFiniteNumber(product.price) &&
-    product.price >= 0 &&
+    isNonNegativeNumber(product.price) &&
     isNonEmptyString(product.sku) &&
     isNonEmptyString(product.unit) &&
     isNonEmptyString(product.imgName) &&
     (product.discount === undefined ||
-      (isFiniteNumber(product.discount) && product.discount >= 0 && product.discount <= 1))
+      (isNonNegativeNumber(product.discount) && product.discount <= 1))
   );
 };
 
@@ -151,7 +153,13 @@ router.post('/', (req, res) => {
     return;
   }
 
-  const newProduct: Product = req.body;
+  const newProduct = req.body as Product;
+
+  if (products.some(product => product.productId === newProduct.productId)) {
+    res.status(400).json({ error: 'Product ID already exists' });
+    return;
+  }
+
   products.push(newProduct);
   res.status(201).json(newProduct);
 });

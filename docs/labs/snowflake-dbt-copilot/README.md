@@ -10,6 +10,11 @@ Welcome! In this lab you'll use **GitHub Copilot Chat**, **Copilot Agent mode**,
 **custom prompt files** to build a tiny but realistic dbt project — a raw → staging →
 mart pipeline over a sample sales dataset — without writing the boilerplate yourself.
 
+> [!NOTE]
+> GitHub Copilot output is probabilistic, so your generated SQL, YAML, Python, or
+> prompt content may differ from the examples shown below. That is expected for this
+> lab, as long as the result still satisfies the exercise goals.
+
 ---
 
 ## 🗂️ What's in this folder
@@ -268,16 +273,22 @@ show me the output.
 ### ✅ Expected output (abbreviated)
 
 ```
-Rows: 20
+Row count: 20
 
-order_id        nulls=0.0%   distinct=20
-order_date      nulls=0.0%   distinct=10
-region          nulls=0.0%   distinct=3
-product_sku     nulls=0.0%   distinct=3
-quantity        nulls=0.0%   distinct=7
-unit_price      nulls=5.0%   distinct=3
-customer_id     nulls=5.0%   distinct=19
+Column                 Null %  Distinct
+------------------------------------------
+order_id                 0.0%        20
+order_date               0.0%        10
+region                   0.0%         3
+product_sku              0.0%         3
+quantity                 0.0%         7
+unit_price               5.0%         3
+customer_id              5.0%        19
 ```
+
+Exact spacing may vary slightly depending on how Copilot formats the print
+statements. The important part is that the row count and per-column null/distinct
+counts match the CSV.
 
 ### Step 4b — Save it as a reusable prompt file
 
@@ -293,19 +304,20 @@ on any CSV in this repo. Parameterize the CSV path as ${input:csvPath}.
 
 ````markdown
 ---
-description: Profile a CSV file — row count, null %, and distinct counts per column.
 mode: agent
+description: Profile a CSV file — prints row count, null %, and distinct value count per column using only the Python standard library.
 ---
 
-Profile the CSV at `${input:csvPath}` using `docs/labs/snowflake-dbt-copilot/profile_table.py`.
+Open `${input:csvPath}` and implement (or re-run) the `profile_table` function in
+`docs/labs/snowflake-dbt-copilot/profile_table.py` so that, given a path to a CSV
+file, it prints:
 
-If `profile_table` is not yet implemented, implement it using only the Python
-standard library so that it prints:
-- total row count
-- per column: name, null percentage (empty = null, 1 decimal), distinct non-null count
+- the total row count
+- for each column: the column name, null percentage (empty string = null,
+  formatted to one decimal place), and distinct non-null value count
 
-Then run the script against `${input:csvPath}` and summarize anything that looks
-like a data quality issue (high null %, suspicious distinct counts, negative numerics).
+Use only the Python standard library (`csv`, `pathlib`, `collections`).
+Then run it against `${input:csvPath}` and show me the output.
 ````
 
 ### 🔎 What to notice

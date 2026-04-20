@@ -36,6 +36,8 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Invalid product payload
  * 
  * /api/products/{id}:
  *   get:
@@ -107,8 +109,48 @@ const router = express.Router();
 
 let products: Product[] = [...seedProducts];
 
+export const resetProducts = () => {
+  products = [...seedProducts];
+};
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim().length > 0;
+
+const isFiniteNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+
+const isPositiveInteger = (value: unknown): value is number =>
+  Number.isInteger(value) && typeof value === 'number' && value > 0;
+
+const isValidProductPayload = (payload: unknown): payload is Product => {
+  if (!payload || typeof payload !== 'object') {
+    return false;
+  }
+
+  const product = payload as Partial<Product>;
+
+  return (
+    isPositiveInteger(product.productId) &&
+    isPositiveInteger(product.supplierId) &&
+    isNonEmptyString(product.name) &&
+    isNonEmptyString(product.description) &&
+    isFiniteNumber(product.price) &&
+    product.price >= 0 &&
+    isNonEmptyString(product.sku) &&
+    isNonEmptyString(product.unit) &&
+    isNonEmptyString(product.imgName) &&
+    (product.discount === undefined ||
+      (isFiniteNumber(product.discount) && product.discount >= 0 && product.discount <= 1))
+  );
+};
+
 // Create a new product
 router.post('/', (req, res) => {
+  if (!isValidProductPayload(req.body)) {
+    res.status(400).json({ error: 'Invalid product payload' });
+    return;
+  }
+
   const newProduct: Product = req.body;
   products.push(newProduct);
   res.status(201).json(newProduct);

@@ -75,7 +75,14 @@ This isn't just another demo app - it's a carefully crafted showcase that demons
         - Hint: Use the slash command to execute the prompt all existing documentation for the project.  Specify the README.md file and the docs/architecture.md file if you only want that updated. 
 
 ---
-6. **Frontend Design review (using agent skills)**
+6. **HANDS-ON LAB: Snowflake + dbt + Copilot for Data Engineers**
+   A self-contained lab for data engineers new to Copilot. Use Chat and Agent mode to
+   generate a dbt staging model, a regional mart, a `schema.yml` with tests, and a
+   reusable Python data profiler — all from a 20-row sample dataset. No live Snowflake
+   connection required to read through; optionally run against a Snowflake trial.
+   - 📂 [`docs/labs/snowflake-dbt-copilot/`](./docs/labs/snowflake-dbt-copilot/README.md)
+---
+7. **Frontend Design review (using agent skills)**
    - Review the [`.github/skills/frontend-design/SKILL.md`](./.github/skills/frontend-design/SKILL.md) file. This file provides an agent skill for improving frontend design quality.
    - Ensure that the `chat.useAgentSkills` setting is enabled in VS Code:
       - Open Settings (`Ctrl + ,`) and search for `chat.useAgentSkills`.

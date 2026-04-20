@@ -76,14 +76,17 @@ raw → staging → mart conventions (snake_case columns, explicit types, `ref()
 
 ### 📋 Sample prompt — paste into Copilot Chat
 
-> Using the file `#seeds/raw_sales.csv` as a dbt seed, generate a dbt **staging** model
-> called `stg_sales.sql` that follows our raw → staging → mart layered pattern.
-> - Reference the seed via `{{ ref('raw_sales') }}`.
-> - Cast `order_date` to `date`, `quantity` to `integer`, `unit_price` to `numeric(10,2)`.
-> - Rename `product_sku` → `sku`, `customer_id` → `customer_key`.
-> - Add a `total_amount` computed column (`quantity * unit_price`).
-> - Include a top-of-file comment describing the model's purpose.
-> - Use a `with source as (…) select … from source` CTE pattern.
+```
+Using the file #seeds/raw_sales.csv as a dbt seed, generate a dbt staging model
+called stg_sales.sql that follows our raw → staging → mart layered pattern.
+
+- Reference the seed via {{ ref('raw_sales') }}.
+- Cast order_date to date, quantity to integer, unit_price to numeric(10,2).
+- Rename product_sku → sku, customer_id → customer_key.
+- Add a total_amount computed column (quantity * unit_price).
+- Include a top-of-file comment describing the model's purpose.
+- Use a with source as (…) select … from source CTE pattern.
+```
 
 ### ✅ Expected output: `models/staging/stg_sales.sql`
 

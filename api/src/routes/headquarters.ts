@@ -151,4 +151,8 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+export function resetHeadquarters() {
+  headquartersList = [...seedHeadquarters];
+}
+
 export default router;

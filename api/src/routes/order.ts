@@ -151,4 +151,8 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+export function resetOrders() {
+  orders = [...seedOrders];
+}
+
 export default router;

@@ -9,6 +9,11 @@
       "args": [
         "@playwright/mcp@latest"
       ]
+    },
+    "fetch": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
     }
   }
 }

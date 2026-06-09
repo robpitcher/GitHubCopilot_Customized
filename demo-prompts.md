@@ -3,5 +3,5 @@ Module 1
 2. Extract the duplicated 404 lookup
 
 Module 2
-Update refactor-agent to allow all tool calls
-use branch.ts as example file
+1. Update refactor-agent to allow all tool calls
+2. use branch.ts as example file

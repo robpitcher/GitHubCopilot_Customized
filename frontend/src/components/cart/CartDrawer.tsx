@@ -40,7 +40,8 @@ export default function CartDrawer() {
 
       clearCart();
       setCheckoutStatus('success');
-    } catch {
+    } catch (err) {
+      console.error('Checkout error:', err);
       setCheckoutStatus('error');
       setErrorMessage('Checkout failed. Please try again.');
     }
